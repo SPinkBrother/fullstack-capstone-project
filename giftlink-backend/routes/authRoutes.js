@@ -8,11 +8,62 @@ const router = express.Router();
 const dotenv = require('dotenv');
 const pino = require('pino');  // Import Pino logger
 
+const {body, validationResult} = require('express-validator')
+
 const logger = pino();  // Create a Pino logger instance
 
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+// {Insert it along with other imports} Task 1: Use the `body`,`validationResult` from `express-validator` for input validation
+
+router.put('/update', async (req, res) => {
+    const error =  validationResult(req);
+    if(!errors.isEmpty()) {
+        logger.error('Validation error is update request', errors.array());
+        return res.status(400).json({ errors: errors.array()});
+    }
+    try {
+        // Task 3: Check if `email` is present in the header and throw an appropriate error message if not present.
+        const email = req.headers.email;
+        if(!email) {
+            logger.error('Email not found in the request headers');
+            return res.status(400).json({ error: "Emaik not found in the request headers"})
+        }
+        // Task 4: Connect to db
+        const db = await connectToDatabase();
+
+		// Task 5: find user credentials in database
+        const collection = db.collection("users");
+        const existingUser = await collection.findOne({ email });
+
+		existingUser.updatedAt = new Date();
+
+		// Task 6: update user credentials in database
+        const updatedUser = await collection.findOneUpdate(
+            {email},
+            {$set: existingUser},
+            {returnDocument: 'after'}
+        )
+		// Task 7: create JWT authentication using secret key from .env file
+        const payload = {
+            user: {
+                id: updatedUser._id.toString(),
+            },
+        };
+
+        const authtoken = jwt.sign(payload, JWT_SECRET);
+
+        res.json({authtoken});
+    } catch (e) {
+         return res.status(500).send('Internal server error');
+
+    }
+});
+
+
+
 // Register routes
 router.post('/register', async (req, res) => {
     try {
