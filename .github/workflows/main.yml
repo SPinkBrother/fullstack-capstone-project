@@ -20,7 +20,7 @@ jobs:
       - run: npm install -g jshint
 
       - run: |
-          find giftlink-backend -name "*.js" -exec jshint {} +
+          find giftlink-backend -name "*.js" -exec jshint --esversion=11 {} +
 
   client_build:
     runs-on: ubuntu-latest
