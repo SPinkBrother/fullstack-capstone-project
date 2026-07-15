@@ -8,8 +8,6 @@ const router = express.Router();
 const dotenv = require('dotenv');
 const pino = require('pino');  // Import Pino logger
 
-const {body, validationResult} = require('express-validator')
-
 const logger = pino();  // Create a Pino logger instance
 
 dotenv.config();
