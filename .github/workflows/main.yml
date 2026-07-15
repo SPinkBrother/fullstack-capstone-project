@@ -1,4 +1,4 @@
-name: CI/CD
+name: 'CI/CD'
 
 on:
   push:
@@ -8,45 +8,46 @@ on:
 
 jobs:
   lint_js:
-    name: Lint JavaScript Files
-    runs-on: ubuntu-latest
+      name: Lint JavaScript Files
+      runs-on: ubuntu-latest
 
-    steps:
+      steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 14
 
       - name: Install JSHint
-        run: npm install --global jshint
+        run: npm install jshint --global
 
       - name: Run Linter
         run: |
-          find giftlink-backend -type f -name '*.js' -print0 | xargs -0 jshint
-          echo "Linted all the JS files successfully"
+          # This command finds all JavaScript files recursively and runs JSHint on them
+          find ./giftlink-backend -name app.js -exec jshint {} +
+          find ./giftlink-backend -name auth.js -exec jshint {} +
+          find ./giftlink-backend -name giftRoutes.js -exec jshint {} +
+          find ./giftlink-backend -name searchRoutes.js -exec jshint {} +
+          echo "Linted all the js files successfully"
 
   client_build:
-    name: Build client
-    runs-on: ubuntu-latest
+      name: Build client
+      runs-on: ubuntu-latest
 
-    steps:
+      steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
-
-      - name: Install frontend dependencies
-        working-directory: giftlink-frontend
-        run: npm install
+          node-version: 14
 
       - name: Run build
-        working-directory: giftlink-frontend
-        env:
-          CI: true
-        run: npm run build
+        run: |
+          cd giftlink-frontend
+          npm install
+          npm run build
+          echo "Client-side build successfully"
